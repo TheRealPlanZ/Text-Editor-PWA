@@ -3,30 +3,28 @@ const butInstall = document.getElementById('buttonInstall');
 // Logic for installing the PWA
 // TODO: Add an event handler to the `beforeinstallprompt` event
 window.addEventListener('beforeinstallprompt', (event) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    event.preventDefault();
-    // Stash the event so it can be triggered later.
     window.deferredPrompt = event;
-    // Update UI to notify the user they can add to home screen
-    butInstall.style.display = 'block';
+    butInstall.removeAttribute('hidden');
 });
 
 // TODO: Implement a click event handler on the `butInstall` element
 butInstall.addEventListener('click', async () => {
-    // Hide the app provided install promotion
-    butInstall.style.display = 'none';
-    // Show the install prompt
-    window.deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    const { outcome } = await window.deferredPrompt.userChoice;
-    // Optionally, send analytics event with outcome of user choice
-    console.log(`User response to the install prompt: ${outcome}`);
-    // We've used the prompt, and can't use it again, throw it away
+    const promptEvent = window.deferredPrompt;
+    if (!promptEvent) {
+        return;
+    }
+    promptEvent.prompt();
+    const result = await promptEvent.userChoice;
+    if (result.outcome === 'accepted') {
+        console.log('User accepted the A2HS prompt');
+    } else {
+        console.log('User dismissed the A2HS prompt');
+    }
     window.deferredPrompt = null;
+    butInstall.setAttribute('hidden', true);
 });
 
 // TODO: Add an handler for the `appinstalled` event
 window.addEventListener('appinstalled', (event) => {
-    // Log install to analytics
-    console.log('Weather App was installed.', event);
+    window.deferredPrompt = null;
 });
