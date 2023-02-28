@@ -14,23 +14,38 @@ const initdb = async () =>
 
 // TODO: Add logic to a method that accepts some content and adds it to the database
 export const putDb = async (content) => {
-  const jateDb = await openDB('jate', 1);
-  const tx = jateDb.transaction('jate', 'readwrite');
+  // Create a new database connection
+  const db = await openDB('jate', 1);
+  // Open a transaction on the database
+  const tx = db.transaction('jate','readwrite');
+  // Access the object store
   const store = tx.objectStore('jate');
-  store.put(content);
-  await tx.done;
-  console.log('Content added to database');
-}
+  // Add content to the store
+  const request = store.put(content);
+  // Get the result of the request
+  request.onsuccess = () => {
+    console.log('success');
+  };
+  request.onerror = () => {
+    console.log('error');
+  };
+};
 
 // TODO: Add logic for a method that gets all the content from the database
 export const getDb = async () => {
-  const jateDb = await openDB('jate', 1);
-  const tx = jateDb.transaction('jate', 'readonly');
+  // Create a new database connection
+  const db = await openDB('jate', 1);
+  // Open a transaction on the database
+  const tx = db.transaction('jate','readonly');
+  // Access the object store
   const store = tx.objectStore('jate');
-  const content = await store.getAll();
-  await tx.done;
-  console.log('Content retrieved from database');
-  return content;
-}
+  const getAll = store.getAll();
+  getAll.onsuccess = () => {
+    console.log('success');
+  };
+  getAll.onerror = () => {
+    console.log('error');
+  };
+};
 
 initdb();
